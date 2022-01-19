@@ -1,0 +1,215 @@
+name:  deploy
+
+on:
+    push:
+        branches:
+            - master
+jobs:
+    eslint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: NVM
+              run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+            - name: Activate NVM
+              run: export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
+            - name: Install node.js
+              env:
+                  NODE_VERSION: 12.22.1
+              run: nvm install
+            - name: npm install
+              run: npm install
+            - name: ESLint
+              run: npm run eslint
+
+
+
+
+
+
+#        runs-on: ubuntu-latest
+#        steps:
+#            - name: Install SSH Key
+#              uses: shimataro/ssh-key-action@v2
+#              with:
+#                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+#                  known_hosts: ${{ secrets.SSH_KNOWN_HOST }}
+#            - name: Adding Known Hosts
+#              run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+#            - name: Fetch next release version
+#              run: ssh nginx@${{ secrets.SSH_HOST }} "cd stuntex.ru && dep next_release_name" > /tmp/next_release.txt
+#
+#            - name: Init new release
+#              run: ssh nginx@${{ secrets.SSH_HOST }} "cd stuntex.ru && dep deploy:init-release -v localhost"
+#            - name: store release version to next steps
+#              uses: actions/upload-artifact@v2
+#              with:
+#                  name: release-version
+#                  path: /tmp/next_release.txt
+#    #          - name: Set release dir env
+#    #            run: echo "RELEASE_DIR=$(printf 'stuntex.ru/releases/%s/' $(sed -n '2p;2q' /tmp/next_release.txt))" >> $GITHUB_ENV
+#    #          - name: clean release directory
+#    #            run: ssh stuntex@${{ secrets.SSH_HOST }} "[ -d ${{ env.RELEASE_DIR }} ] && cd ${{ env.RELEASE_DIR }} && rm -rf {,.[!.],..?}*"
+#    build:
+#        needs: [init_release]
+#        runs-on: ubuntu-latest
+#        container:
+#            image: enemis/stuntex-php:7.4
+#            options: --user 0
+#            env:
+#                NODE_ENV: prod
+#            ports:
+#                - "9000:9000"
+#            volumes:
+#                - my_docker_volume:/volume_mount
+#                - /tmp/composer_cache/:/var/www/.composer/:delegated
+#        env:
+#            APP_ENV: 'prod'
+#        steps:
+#            - name: checkout
+#              uses: actions/checkout@v2
+#            - name: get artifact
+#              uses: actions/download-artifact@v2
+#              with:
+#                  name: release-version
+#            - name: Set release dir env
+#              run: echo "RELEASE_DIR=$(printf 'stuntex.ru/releases/%s/' $(sed -n '2p;2q' next_release.txt))" >> $GITHUB_ENV
+#            - name: Cache Composer dependencies
+#              uses: actions/cache@v2
+#              with:
+#                  path: /tmp/composer_cache
+#                  key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+#            - name: ssh-client
+#              run: apt install -y openssh-client
+#            - name: composer install
+#              run: composer install --no-dev
+#            - name: Install SSH Key
+#              uses: shimataro/ssh-key-action@v2
+#              with:
+#                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+#                  known_hosts: ${{ secrets.SSH_KNOWN_HOST }}
+#            - name: install ckeditor
+#              run: bin/console ckeditor:install
+#            - name: install assets
+#              run: bin/console assets:install
+#            - name: Copy files to the server
+#              run: |
+#                  rsync -arz --progress --human-readable \
+#                    --exclude-from '.gitignore' \
+#                    . nginx@${{ secrets.SSH_HOST }}:~/${{ env.RELEASE_DIR }}
+#            - name: Copy bundles accets files to the server
+#              run: |
+#                  rsync -arz --progress --human-readable \
+#                   public/bundles nginx@${{ secrets.SSH_HOST }}:~/${{ env.RELEASE_DIR }}/public
+#            - name: Copy vendors to the server
+#              run: |
+#                  rsync -arz --progress --human-readable \
+#                      vendor nginx@${{ secrets.SSH_HOST }}:~/${{ env.RELEASE_DIR }}
+#            - name: sylius bundle resources artifact
+#              uses: actions/upload-artifact@v2
+#              with:
+#                  path: |
+#                      vendor/sylius/sylius/src/Sylius/Bundle/ShopBundle
+#                      vendor/sylius/sylius/src/Sylius/Bundle/AdminBundle
+#                      vendor/sylius/sylius/src/Sylius/Bundle/UiBundle
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.php
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.yml
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.xml
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.xml
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.md
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.dist
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.json
+#                      !vendor/sylius/sylius/src/Sylius/Bundle/**/*.twig
+#                  name: sylius-bundle
+#            - name: sylius gulp artifact
+#              uses: actions/upload-artifact@v2
+#              with:
+#                  path: |
+#                      vendor/sylius/sylius/gulpfile.babel.js
+#                       vendor/sylius/sylius/.babelrc
+#                  name: sylius-babel
+#    build_front:
+#        needs: [ build ]
+#        runs-on: ubuntu-latest
+#        container:
+#            image: enemis/stx_node:12
+#            env:
+#                NODE_ENV: production
+#            ports:
+#                - "42001:42001"
+#            volumes:
+#                - my_docker_volume:/volume_mount
+#        steps:
+#            - name: checkout
+#              uses: actions/checkout@v2
+#            - name: get artifact version
+#              uses: actions/download-artifact@v2
+#              with:
+#                  name: release-version
+#            - name: get artifact sylius bundles resources
+#              uses: actions/download-artifact@v2
+#              with:
+#                  name: sylius-bundle
+#                  path: vendor/sylius/sylius/src/Sylius/Bundle/
+#            - name: get artifact sylius admin gulp
+#              uses: actions/download-artifact@v2
+#              with:
+#                  name: sylius-babel
+#                  path: vendor/sylius/sylius/src/
+#            - name: Set release dir env
+#              run: echo "RELEASE_DIR=$(printf 'stuntex.ru/releases/%s/' $(sed -n '2p;2q' next_release.txt))" >> $GITHUB_ENV
+#            - name: Cache package.json dependencies
+#              uses: actions/cache@v2
+#              with:
+#                  path: /tmp/package-cache
+#                  key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+#
+#            - name: yarn install
+#              run: yarn install --silent --production=false
+#            - name: build front
+#              run: gulp build
+#            - name: Install SSH Key
+#              uses: shimataro/ssh-key-action@v2
+#              with:
+#                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+#                  known_hosts: ${{ secrets.SSH_KNOWN_HOST }}
+#            - name: Copy files to the server
+#              run: |
+#                  rsync -arz --progress --human-readable \
+#                    public/build nginx@${{ secrets.SSH_HOST }}:~/${{ env.RELEASE_DIR }}/public/
+#
+#            - name: yarn install
+#              run: yarn install --silent --prod
+#            - name: Copy node_modules to the server
+#              run: |
+#                  rsync -arz --progress --human-readable \
+#                      node_modules nginx@${{ secrets.SSH_HOST }}:~/${{ env.RELEASE_DIR }}
+#    finish_deploy:
+#        needs: [ build, build_front ]
+#        runs-on: ubuntu-latest
+#        steps:
+#            - name: Install SSH Key
+#              uses: shimataro/ssh-key-action@v2
+#              with:
+#                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+#                  known_hosts: ${{ secrets.SSH_KNOWN_HOST }}
+#            - name: Adding Known Hosts
+#              run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+#            - name: Finish deploy
+#              run: ssh nginx@${{ secrets.SSH_HOST }} "cd stuntex.ru && dep deploy:finish -v localhost"
+#
+#    after_all:
+#        #        if: ${{ always() && (needs.job1.result=='failure' || needs.job2.result=='failure') }}
+#        if: ${{ always() }}
+#        needs: [finish_deploy]
+#        runs-on: ubuntu-latest
+#        steps:
+#            - name: Install SSH Key
+#              uses: shimataro/ssh-key-action@v2
+#              with:
+#                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+#                  known_hosts: ${{ secrets.SSH_KNOWN_HOST }}
+#            - name: Adding Known Hosts
+#              run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+#            - name: Unlock deploy
+#              run: ssh nginx@${{ secrets.SSH_HOST }} "cd stuntex.ru && dep deploy:unlock -v localhost"
