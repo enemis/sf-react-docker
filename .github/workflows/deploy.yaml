@@ -16,7 +16,7 @@ jobs:
             - name: version
               run: node -v
             - name: npm install
-              run: npm install
+              run: cd frontend && npm install
             - name: ESLint
               run: npm run eslint
 
