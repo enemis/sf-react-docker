@@ -10,9 +10,9 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - name: NVM
-              run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+              run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
             - name: Activate NVM
-              run: export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
+              run: export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use && source ~/.bashrc
             - name: Install node.js
               env:
                   NODE_VERSION: 12.22.1
