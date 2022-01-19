@@ -12,7 +12,7 @@ jobs:
             - name: setup repository
               run: curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh | bash
             - name: install node
-              run: apt update && apt install nodejs
+              run: apt-get update && apt-get install nodejs
             - name: version
               run: node -v
             - name: npm install
