@@ -24,8 +24,8 @@ services:
     restart: always
     volumes:
       - .docker/db:/var/lib/mysql
-    ports:
-      - 3307:3306
+#    ports:
+#      - 3307:3306
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -37,7 +37,7 @@ services:
     container_name: app_httpd
     restart: always
     ports:
-      - 81:80
+      - 80:80
     volumes:
       - ${SYMFONY_APP}:/var/www
       - .docker/httpd/httpd.conf:/usr/local/apache2/conf/httpd.conf
@@ -45,6 +45,19 @@ services:
       - mysql
     depends_on:
       - php
+
+  node:
+    image: enemis/stx_node:12
+    container_name: node
+    working_dir: /usr/src/app
+    volumes:
+      - ./frontend/:/usr/src/app
+    depends_on:
+      - httpd
+    ports:
+      - '3000:3000'
+    command: [ "yarn", "start" ]
+
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

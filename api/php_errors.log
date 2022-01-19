@@ -30,3 +30,15 @@ Did you mean one of these?
     make:validator
     make:voter"
 
+[19-Jan-2022 20:27:54 UTC] PHP Fatal error:  Uncaught Symfony\Component\Dotenv\Exception\PathException: Unable to read the "/var/www/.env" environment file. in /var/www/vendor/symfony/dotenv/Dotenv.php:565
+Stack trace:
+#0 /var/www/vendor/symfony/dotenv/Dotenv.php(92): Symfony\Component\Dotenv\Dotenv->doLoad(false, Array)
+#1 /var/www/vendor/symfony/dotenv/Dotenv.php(114): Symfony\Component\Dotenv\Dotenv->load('/var/www/.env')
+#2 /var/www/vendor/symfony/dotenv/Dotenv.php(157): Symfony\Component\Dotenv\Dotenv->loadEnv('/var/www/.env', 'APP_ENV', 'dev', Array)
+#3 /var/www/bin/console(31): Symfony\Component\Dotenv\Dotenv->bootEnv('/var/www/.env')
+#4 {main}
+  thrown in /var/www/vendor/symfony/dotenv/Dotenv.php on line 565
+[19-Jan-2022 20:28:16 UTC] 2022-01-19T20:28:16+00:00 [info] User Deprecated: getRawData only returns the first dataset loaded, which may not be what you expect. Use getAllRawData() instead which returns all datasets for all autoloaders present in the process.
+[19-Jan-2022 20:30:30 UTC] 2022-01-19T20:30:30+00:00 [info] User Deprecated: getRawData only returns the first dataset loaded, which may not be what you expect. Use getAllRawData() instead which returns all datasets for all autoloaders present in the process.
+[19-Jan-2022 20:30:31 UTC] 2022-01-19T20:30:31+00:00 [info] User Deprecated: getRawData only returns the first dataset loaded, which may not be what you expect. Use getAllRawData() instead which returns all datasets for all autoloaders present in the process.
+[19-Jan-2022 21:01:41 UTC] 2022-01-19T21:01:41+00:00 [info] User Deprecated: getRawData only returns the first dataset loaded, which may not be what you expect. Use getAllRawData() instead which returns all datasets for all autoloaders present in the process.
