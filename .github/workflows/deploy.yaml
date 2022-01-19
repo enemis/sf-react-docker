@@ -12,7 +12,7 @@ jobs:
             - name: NVM
               run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
             - name: Activate NVM
-              run: export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use && source ~/.bashrc
+              run: export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use && source ~/.bashrc && bash
             - name: Install node.js
               env:
                   NODE_VERSION: 12.22.1
