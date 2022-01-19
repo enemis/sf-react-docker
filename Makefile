@@ -45,4 +45,7 @@ fixuser:
 	sudo groupadd docker && sudo usermod -aG docker $USER
 
 node_modules:
-    docker run --rm -it -v $(pwd)/frontend\:/tmp/app:delegated -w /tmp/app enemis/stx_node\:12 bash -c 'yarn install'
+	docker run --rm -it -v $(pwd)/frontend\:/tmp/app:delegated -w /tmp/app enemis/stx_node\:12 bash -c 'yarn install'
+
+eslint:
+	docker run --rm -it -v $(pwd)/frontend\:/tmp/app:delegated -w /tmp/app/ enemis/stx_node\:12 bash -c 'yarn test'
